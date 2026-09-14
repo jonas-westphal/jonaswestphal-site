@@ -2,49 +2,139 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <title>Tic Tac Toe</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>jonaswestphal.me</title>
   <style>
-    :root {
-      color-scheme: light dark;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
     body {
-      margin: 0;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       min-height: 100vh;
+      background: #f4f4f4;
+    }
+    h1 { margin-bottom: 0.5rem; }
+    #status { margin-bottom: 1rem; }
+    .board {
       display: grid;
-      place-items: center;
-      background: #f7f7f7;
-      color: #111;
+      grid-template-columns: repeat(3, 80px);
+      grid-template-rows: repeat(3, 80px);
+      gap: 4px;
     }
-    main {
-      text-align: center;
-      padding: 2rem;
+    .cell {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      margin: 0 0 0.75rem;
+    .cell:disabled {
+      cursor: default;
+      background: #eee;
+      box-shadow: none;
     }
-    p {
-      font-size: 1.1rem;
-      margin: 0;
-      color: #555;
-    }
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: #111;
-        color: #f5f5f5;
-      }
-      p {
-        color: #bbb;
-      }
+    button#reset {
+      margin-top: 1rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Under construction :)</h1>
-    <p>How did you find this page... either way have a great day!!!.</p>
-  </main>
+  <h1>Tic Tac Toe</h1>
+  <div id="status">Player X ist am Zug</div>
+
+  <div class="board" id="board">
+    <!-- 9 buttons for the grid -->
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+    <button class="cell"></button>
+  </div>
+
+  <button id="reset">Neues Spiel</button>
+
+  <script>
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    const statusEl = document.getElementById('status');
+    const resetBtn = document.getElementById('reset');
+
+    let currentPlayer = 'X';
+    let board = Array(9).fill(null);
+    let gameOver = false;
+
+    const winningPatterns = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    function handleClick(index) {
+      if (gameOver || board[index]) return;
+
+      board[index] = currentPlayer;
+      cells[index].textContent = currentPlayer;
+
+      const winner = checkWinner();
+      if (winner) {
+        statusEl.textContent = 'Gewonnen: Spieler ' + winner;
+        gameOver = true;
+        return;
+      }
+
+      if (board.every(cell => cell !== null)) {
+        statusEl.textContent = 'Unentschieden';
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      statusEl.textContent = 'Player ' + currentPlayer + ' ist am Zug';
+    }
+
+    function checkWinner() {
+      for (const [a, b, c] of winningPatterns) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return board[a];
+        }
+      }
+      return null;
+    }
+
+    function resetGame() {
+      board = Array(9).fill(null);
+      cells.forEach(cell => cell.textContent = '');
+      currentPlayer = 'X';
+      gameOver = false;
+      statusEl.textContent = 'Player X ist am Zug';
+    }
+
+    cells.forEach((cell, index) => {
+      cell.addEventListener('click', () => handleClick(index));
+    });
+
+    resetBtn.addEventListener('click', resetGame);
+  </script>
 </body>
 </html>
